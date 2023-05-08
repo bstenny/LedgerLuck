@@ -39,6 +39,9 @@ contract CoinFlipGame {
         owner = msg.sender;
         minimumBet = 0.1 ether; // set minimum bet to 0.1 ether
     }
+    // Fallback function to receive ETH without a function call. It's supposed to be empty
+    fallback() external payable {
+    }
 
     // Flip a coin. Head is true, tails is false
     function placeBet(bool choice) public payable {
