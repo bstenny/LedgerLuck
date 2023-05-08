@@ -9,6 +9,7 @@ interface IRandomizer {
     function clientWithdrawTo(address _to, uint256 _amount) external;
     function estimateFee(uint256 callbackGasLimit) external view returns (uint256);
     function estimateFee(uint256 callbackGasLimit, uint256 confirmations) external view returns (uint256);
+    function clientDeposit(address _client) external payable;
 }
 
 contract CoinFlipGame {
@@ -46,13 +47,19 @@ contract CoinFlipGame {
     // Flip a coin. Head is true, tails is false
     function placeBet(bool choice) public payable {
         // Estimate the VRF fee and revert if user cannot cover the fee 
-        uint256 vrffee = randomizer.estimateFee(50000, 4);
+        uint256 vrffee = getVRFFee();
         require(msg.value >= (minimumBet + vrffee), "Bet amount or VRF Fee is too low!"); 
+        randomizer.clientDeposit{value: vrffee}(address(this));
 
-        uint256 betId = randomizer.request(50000, 4);
+        uint256 betId = randomizer.request(500000, 4);
         bets[betId] = Bet(msg.sender, (msg.value - vrffee), choice, false, false);
 
         emit BetPlaced(betId, msg.sender, (msg.value - vrffee), choice);
+    }
+
+    function getVRFFee() public view returns (uint256 fee) {
+        fee = (IRandomizer(randomizer).estimateFee(500000, 4) * 125) / 100;
+        return fee;
     }
 
     // Function called by the VRF contract. Resolves the bet. 
