@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 // Interface for Randomizer.ai VRF
-interface vrf {
+interface IRandomizer {
     function request(uint256 callbackGasLimit) external returns (uint256);
     function request(uint256 callbackGasLimit, uint256 confirmations) external returns (uint256);
     function clientWithdrawTo(address _to, uint256 _amount) external;
@@ -19,7 +19,7 @@ contract CoinFlipGame {
     // percentage of the bet that goes to the contract
     uint256 private constant CONTRACT_FEE_PERCENTAGE = 1; 
     // Randomizer.ai on Arbitrum Goerli 
-    vrf public randomizer = vrf(0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc);
+    IRandomizer public randomizer = IRandomizer(0x923096Da90a3b60eb7E12723fA2E1547BA9236Bc);
 
     struct Bet {
         address player;
@@ -88,4 +88,5 @@ contract CoinFlipGame {
         require(msg.sender == owner, "Only the contract owner can withdraw the contract balance");
         payable(owner).transfer(address(this).balance);
     }
+
 }
