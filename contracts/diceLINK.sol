@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// LedgerLuck Sepolia PoC for COS471
 
 pragma solidity ^0.8.0;
 
@@ -104,7 +105,7 @@ contract diceLINK is VRFConsumerBaseV2 {
     }
 
     // Allows owners to withdraw the funds stored in the contract in case of emergency 
-    function withdrawCoinflipBalance() public onlyOwner {
+    function withdrawDiceBalance() public onlyOwner {
         payable(owner).transfer(address(this).balance);
     }
 
