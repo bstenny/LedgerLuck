@@ -1,0 +1,3 @@
+[submodule "my-rainbowkit-app"]
+	path = my-rainbowkit-app
+	url = https://github.com/bstenny/my-rainbowkit-app

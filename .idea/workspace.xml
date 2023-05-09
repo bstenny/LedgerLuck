@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06b19a50-9e7a-490f-b785-6a2449392dfe" name="Changes" comment="Adding fallback function.">
-      <change afterPath="$PROJECT_DIR$/my-rainbowkit-app/components/ContractCode.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-rainbowkit-app/components/Navbar.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-rainbowkit-app/pages/CoinFlip.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-rainbowkit-app/pages/Contract.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-rainbowkit-app/pages/Lottery.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my-rainbowkit-app/styles/CoinFlip.module.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my-rainbowkit-app/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/my-rainbowkit-app/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my-rainbowkit-app/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/my-rainbowkit-app/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my-rainbowkit-app/pages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/my-rainbowkit-app/pages/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my-rainbowkit-app/styles/Home.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/my-rainbowkit-app/styles/Home.module.css" afterDir="false" />
-    </list>
+    <list default="true" id="06b19a50-9e7a-490f-b785-6a2449392dfe" name="Changes" comment="Adding fallback function." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,7 +18,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/my-rainbowkit-app" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -42,14 +29,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/Users/blakestenstrom/Documents/cos471/LedgerLuck"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/blakestenstrom/Documents/cos471/LedgerLuck&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
