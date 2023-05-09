@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 contract CoinFlipGameLINK is VRFConsumerBaseV2 {
     // owner of the contract
@@ -42,7 +41,7 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
     event BetPlaced(uint256 betId, address player, uint256 amount, bool choice);
     event BetResolved(uint256 betId, address player, uint256 amount, bool choice, bool result, bool won);
     event cashedOut(uint256 betId, address player, uint256 amount);
-
+    event contractReplenished(address user, uint256 amount);
 
     constructor(address _vrfCoordinator, address _link, uint64 _subID) 
         VRFConsumerBaseV2(_vrfCoordinator) {
@@ -53,14 +52,20 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
             subId = _subID;
     }
 
+    // Only the owner can call functions with this modifier 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the contract owner!");
+        _;
+    }
+
     // Flip a coin. Head is true, tails is false
-    function placeBet(bool choice) public payable {
+    function placeBet(bool _choice) public payable {
         require(msg.value >= (minimumBet), "Bet amount is too low!"); 
 
         uint256 betId = requestRandomWords();
-        bets[betId] = Bet(msg.sender, msg.value, choice, false, false);
+        bets[betId] = Bet(msg.sender, msg.value, _choice, false, false);
 
-        emit BetPlaced(betId, msg.sender, msg.value, choice);
+        emit BetPlaced(betId, msg.sender, msg.value, _choice);
     }
 
     function requestRandomWords() internal returns (uint256 requestId) {
@@ -68,7 +73,7 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
         return requestId;
     }
 
-    // Function called by the VRF contract. Resolves the bet. 
+    // Internal function called by the VRF contract. Resolves the bet. 
     function fulfillRandomWords(uint256 _id, uint256[] memory _randomWords) internal override {
         // Determine a win or loss 
         bool result = ((_randomWords[0] %2) == 0);
@@ -76,7 +81,6 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
         // Log results and emit event
         bets[_id].won = won;
         emit BetResolved(_id, bets[_id].player, bets[_id].amount, bets[_id].choice, result, won);
-        
     }
 
     // Cash out a winning bet
@@ -91,16 +95,31 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
         uint256 payout = bets[_id].amount * 2 * (100 - CONTRACT_FEE_PERCENTAGE) / 100;
         require(address(this).balance >= payout, "Insufficient funds in contract to cash out.");
         // Pay out and update bet struct
-        payable(bets[_id].player).transfer(payout);
         bets[_id].paid = true;
+        payable(bets[_id].player).transfer(payout);
         emit cashedOut(_id, bets[_id].player, bets[_id].amount);
-        
     }
 
     // Allows owners to withdraw the funds stored in the contract in case of emergency 
-    function withdrawCoinflipBalance() public {
-        require(msg.sender == owner, "Only the contract owner can withdraw the contract balance");
+    function withdrawCoinflipBalance() public onlyOwner {
         payable(owner).transfer(address(this).balance);
     }
 
+    // Allows the contract owner to change the minimum bet amount
+    function setMinimumBet(uint256 _minimumBet) external onlyOwner {
+        minimumBet = _minimumBet;
+    }
+
+    // Allows contract owner to update Chainlink VRF parameters 
+    function updateVRFParameters(uint64 _subId, bytes32 _keyHash, uint16 _requestConfirmations, uint32 _callbackGasLimit) external onlyOwner {
+        subId = _subId;
+        keyHash = _keyHash;
+        requestConfirmations = _requestConfirmations;
+        callbackGasLimit = _callbackGasLimit;
+    }
+
+    // Allows contract to receive Ether
+    receive() external payable {
+        emit contractReplenished(msg.sender, msg.value);
+    }
 }
