@@ -38,7 +38,7 @@ contract diceLINK is VRFConsumerBaseV2 {
     // mapping of bet IDs to bets
     mapping (uint256 => Bet) private bets; 
 
-    // Lotto events
+    // Dice events
     event BetPlaced(uint256 betId, address player, uint256 amount, uint16 rollover);
     event BetResolved(uint256 betId, address player, uint256 amount, uint16 rollover, uint16 result, bool won);
     event cashedOut(uint256 betId, address player, uint256 amount);
