@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="06b19a50-9e7a-490f-b785-6a2449392dfe" name="Changes" comment="deleting diceroll contract">
-      <change afterPath="$PROJECT_DIR$/contracts/diceLINK.sol" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/diceLINK.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/CoinFlipGame.sol" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/CoinFlipGame.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contracts/CoinFlipGameLINK.sol" beforeDir="false" afterPath="$PROJECT_DIR$/contracts/CoinFlipGameLINK.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/LedgerLuck.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LedgerLuck.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
