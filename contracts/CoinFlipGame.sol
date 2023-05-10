@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
+// LedgerLuck Arbitrum Goerli PoC for COS471
 
 pragma solidity ^0.8.0;
 
 // Interface for Randomizer.ai VRF
 interface IRandomizer {
-    function request(uint256 callbackGasLimit) external returns (uint256);
     function request(uint256 callbackGasLimit, uint256 confirmations) external returns (uint256);
-    function clientWithdrawTo(address _to, uint256 _amount) external;
-    function estimateFee(uint256 callbackGasLimit) external view returns (uint256);
     function estimateFee(uint256 callbackGasLimit, uint256 confirmations) external view returns (uint256);
     function clientDeposit(address _client) external payable;
 }
@@ -35,13 +33,18 @@ contract CoinFlipGame {
     event BetPlaced(uint256 betId, address player, uint256 amount, bool choice);
     event BetResolved(uint256 betId, address player, uint256 amount, bool choice, bool result, bool won);
     event cashedOut(uint256 betId, address player, uint256 amount);
+    event contractReplenished(address user, uint256 amount);
+
 
     constructor() {
         owner = msg.sender;
-        minimumBet = 0.1 ether; // set minimum bet to 0.1 ether
+        minimumBet = 1e16; // set minimum bet to 0.01 ether
     }
-    // Fallback function to receive ETH without a function call. It's supposed to be empty
-    fallback() external payable {
+
+    // Only the owner can call functions with this modifier 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the contract owner!");
+        _;
     }
 
     // Flip a coin. Head is true, tails is false
@@ -87,16 +90,25 @@ contract CoinFlipGame {
         uint256 payout = bets[_id].amount * 2 * (100 - CONTRACT_FEE_PERCENTAGE) / 100;
         require(address(this).balance >= payout, "Insufficient funds in contract to cash out.");
         // Pay out and update bet struct
-        payable(bets[_id].player).transfer(payout);
         bets[_id].paid = true;
+        payable(bets[_id].player).transfer(payout);
         emit cashedOut(_id, bets[_id].player, bets[_id].amount);
         
     }
 
     // Allows owners to withdraw the funds stored in the contract in case of emergency 
-    function withdrawContractBalance() public {
-        require(msg.sender == owner, "Only the contract owner can withdraw the contract balance");
+    function withdrawContractBalance() public onlyOwner {
         payable(owner).transfer(address(this).balance);
+    }
+
+    // Allows the contract owner to change the minimum bet amount
+    function setMinimumBet(uint256 _minimumBet) external onlyOwner {
+        minimumBet = _minimumBet;
+    }
+
+    // Allows contract to receive Ether
+    receive() external payable {
+        emit contractReplenished(msg.sender, msg.value);
     }
 
 }

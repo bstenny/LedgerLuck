@@ -6,13 +6,13 @@ pragma solidity ^0.8.0;
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
-contract CoinFlipGameLINK is VRFConsumerBaseV2 {
+contract diceLINK is VRFConsumerBaseV2 {
     // owner of the contract
     address public owner; 
-    // minimum bet amount in wei
-    uint256 public minimumBet; 
+    // bet amount in wei
+    uint256 public minBetSize; 
     // percentage of the bet that goes to the contract
-    uint256 private constant CONTRACT_FEE_PERCENTAGE = 1; 
+    uint256 private constant CONTRACT_FEE_PERCENTAGE = 2; 
     // Address of the LINK token
     address public LINK;
     // The VRF Coordinator
@@ -30,7 +30,7 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
     struct Bet {
         address player;
         uint256 amount;
-        bool choice;
+        uint16 rollover;
         bool won;
         bool paid;
     }
@@ -38,16 +38,16 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
     // mapping of bet IDs to bets
     mapping (uint256 => Bet) private bets; 
 
-    // CoinFlip events
-    event BetPlaced(uint256 betId, address player, uint256 amount, bool choice);
-    event BetResolved(uint256 betId, address player, uint256 amount, bool choice, bool result, bool won);
+    // Dice events
+    event BetPlaced(uint256 betId, address player, uint256 amount, uint16 rollover);
+    event BetResolved(uint256 betId, address player, uint256 amount, uint16 rollover, uint16 result, bool won);
     event cashedOut(uint256 betId, address player, uint256 amount);
     event contractReplenished(address user, uint256 amount);
 
     constructor(address _vrfCoordinator, address _link, uint64 _subID) 
         VRFConsumerBaseV2(_vrfCoordinator) {
             owner = msg.sender;
-            minimumBet = 1e16; // set minimum bet to 0.01 ether
+            minBetSize = 1e16; // set bet size to 0.01 ether
             LINK = _link;
             VRFCInterface = VRFCoordinatorV2Interface(_vrfCoordinator);
             subId = _subID;
@@ -59,17 +59,19 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
         _;
     }
 
-    // Flip a coin. Head is true, tails is false
-    function placeBet(bool _choice) public payable {
-        require(msg.value >= (minimumBet), "Bet amount is too low!"); 
+    // Choose a number from 2 to 98. A 100-sided die is then rolled. If you roll over that number, you win!
+    function placeBet(uint16 _rollover) public payable {
+        require(msg.value >= (minBetSize), "Bet amount is too low!"); 
+        require((_rollover >= 2) && (_rollover <= 98), "Choose a number between 2 and 98.");
 
         uint256 betId = requestRandomWords();
-        bets[betId] = Bet(msg.sender, msg.value, _choice, false, false);
+        bets[betId] = Bet(msg.sender, msg.value, _rollover, false, false);
 
-        emit BetPlaced(betId, msg.sender, msg.value, _choice);
+        emit BetPlaced(betId, msg.sender, msg.value, _rollover);
     }
 
-    function requestRandomWords() internal returns (uint256 requestId) {
+    // Internal function that calls Chainlink VRF
+     function requestRandomWords() internal returns (uint256 requestId) {
         requestId = VRFCInterface.requestRandomWords(keyHash, subId, requestConfirmations, callbackGasLimit, 1);
         return requestId;
     }
@@ -77,11 +79,11 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
     // Internal function called by the VRF contract. Resolves the bet. 
     function fulfillRandomWords(uint256 _id, uint256[] memory _randomWords) internal override {
         // Determine a win or loss 
-        bool result = ((_randomWords[0] %2) == 0);
-        bool won = (result == bets[_id].choice);
+        uint16 result = uint16((_randomWords[0] % 100) + 1);
+        bool won = (result > (bets[_id].rollover));
         // Log results and emit event
         bets[_id].won = won;
-        emit BetResolved(_id, bets[_id].player, bets[_id].amount, bets[_id].choice, result, won);
+        emit BetResolved(_id, bets[_id].player, bets[_id].amount, bets[_id].rollover, result, won);
     }
 
     // Cash out a winning bet
@@ -92,8 +94,9 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
         require(bets[_id].won == true);
         // Check if user has already cashed this bet out
         require(bets[_id].paid == false);
-        // Check if the contract has enough funds to pay out 
-        uint256 payout = bets[_id].amount * 2 * (100 - CONTRACT_FEE_PERCENTAGE) / 100;
+        // Check if the contract has enough funds to pay out. Payout = Bet * (100 / (100 -Rollover)) - Contract Fee  
+        uint256 payout = bets[_id].amount * (100 / (100 - bets[_id].rollover) ) * (100 - CONTRACT_FEE_PERCENTAGE) / 100;
+
         require(address(this).balance >= payout, "Insufficient funds in contract to cash out.");
         // Pay out and update bet struct
         bets[_id].paid = true;
@@ -102,13 +105,13 @@ contract CoinFlipGameLINK is VRFConsumerBaseV2 {
     }
 
     // Allows owners to withdraw the funds stored in the contract in case of emergency 
-    function withdrawCoinflipBalance() public onlyOwner {
+    function withdrawDiceBalance() public onlyOwner {
         payable(owner).transfer(address(this).balance);
     }
 
     // Allows the contract owner to change the minimum bet amount
     function setMinimumBet(uint256 _minimumBet) external onlyOwner {
-        minimumBet = _minimumBet;
+        minBetSize = _minimumBet;
     }
 
     // Allows contract owner to update Chainlink VRF parameters 
